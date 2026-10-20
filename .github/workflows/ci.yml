@@ -47,6 +47,25 @@ jobs:
           irm https://raw.githubusercontent.com/pep-lang/pepper/main/scripts/install.ps1 | iex
           "$env:LOCALAPPDATA\pepper\bin" | Out-File -Append -Encoding utf8 $env:GITHUB_PATH
 
+      # The crypto dependency links the system's libsodium: Linux's
+      # development package, Homebrew's on macOS, and vcpkg's static build on Windows
+      # (static CRT, as Pepper links), found through PEPPER_LIBRARY_PATH.
+      - name: Install libsodium (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libsodium-dev
+
+      - name: Install libsodium (macOS)
+        if: runner.os == 'macOS'
+        run: brew install libsodium
+
+      - name: Install libsodium (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" install libsodium:x64-windows-static
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "PEPPER_LIBRARY_PATH=$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows-static\lib" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+
       - name: Test
         shell: bash
         run: bash tests/run.sh

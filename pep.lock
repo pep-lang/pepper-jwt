@@ -1,0 +1,10 @@
+# Written by `pepper package`: the exact revision of every dependency.
+# Commit it with pep.toml; do not edit it by hand.
+version = 1
+
+[[package]]
+name = "crypto"
+source = "github:pep-lang/pepper-crypto"
+version = "1.0.0"
+commit = "718cba3c961bd3f8406cd3cf389fe674d314ad06"
+sha256 = "1d9d06570470ee546c0092a13d07ec16a3484397f14b37c088a834cb80b2133a"
