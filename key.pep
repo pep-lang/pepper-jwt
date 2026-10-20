@@ -34,6 +34,14 @@ export struct Key {
     var _signing: crypto.SigningKey?;
     var _verifying: crypto.VerifyingKey?;
 
+    ## Makes a blank key, which has no algorithm: it signs nothing and
+    ## verifies no token. Use `hs256`, `ed25519`, `ed25519_public` or
+    ## `from_jwk` instead.
+    construct() {
+        _algorithm = "";
+        _secret = Array<u8>();
+    }
+
     ## Makes an HS256 key from a shared secret, which both signs and
     ## checks.
     ##
@@ -155,6 +163,9 @@ export struct Key {
         if (_algorithm == "HS256") {
             return Result<u8[]>.ok(digest.hmac_sha256(_secret, input));
         }
+        if (_algorithm != "EdDSA") {
+            return Result<u8[]>.err(Error("this key has no algorithm: make it with 'hs256', 'ed25519' or 'from_jwk'"));
+        }
         if (_signing.is_empty()) {
             return Result<u8[]>.err(Error("this EdDSA key holds only a public key, which cannot sign"));
         }
@@ -166,6 +177,10 @@ export struct Key {
     _verify(input: u8[], signature: u8[]): bool {
         if (_algorithm == "HS256") {
             return digest.equal_constant_time(digest.hmac_sha256(_secret, input), signature);
+        }
+        # A blank `Key()` has neither; a token naming its empty `alg` fails.
+        if (_verifying.is_empty()) {
+            return false;
         }
         return _verifying.value().verify(input, signature);
     }

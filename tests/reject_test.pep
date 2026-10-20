@@ -205,3 +205,11 @@ an_unsupported_jwk_is_rejected() {
     var mismatched = "{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"d\":\"nWGxne_9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A\",\"x\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"}";
     expect_true(jwt.Key.from_jwk(mismatched).error().message.contains("not the public key"));
 }
+
+[Test]
+a_blank_key_rejects_rather_than_crashes() {
+    var blank = jwt.Key();
+    var token = _forge("{\"alg\":\"\"}", "{\"exp\":4000000000}", "");
+    expect_true(_rejection(token, blank, jwt.Validation()).contains("signature is not valid"));
+    expect_true(jwt.sign(_claims(""), blank).error().message.contains("no algorithm"));
+}
