@@ -1,20 +1,38 @@
-## One sentence saying what the module does, then what a caller needs to
-## know before using it.
+## JSON Web Tokens (RFC 7519): sign and verify JWS compact tokens
+## (RFC 7515) with HS256 or EdDSA (Ed25519, RFC 8037), and validate their
+## claims.
 ##
-## Bring it in with `import mypkg`.
+## Bring it in with `import jwt`. Ed25519 comes from the
+## [crypto](https://github.com/pep-lang/pepper-crypto) package, so the
+## program links libsodium; HMAC-SHA-256 comes from the runtime's `digest`.
 ##
-## - `greet`: what each part of the API is for
+## - `Key`: a key for one algorithm, from a secret, a crypto key or a JWK
+## - `sign`, `verify`: JWTs, with claims as `json.JsonValue` or a struct
+## - `Validation`: the `exp`, `nbf`, `iat`, `iss` and `aud` checks
+## - `sign_jws`, `verify_jws`: JWS of any payload
 ##
 ## @example
-##     import mypkg;
+##     import json;
+##     import jwt;
 ##
 ##     main(): int {
-##         print(mypkg.greet("Ada"));   # Hello, Ada!
+##         var key = jwt.Key.hs256("a secret of at least thirty-two bytes".bytes()).value();
+##         var claims = json.JsonValue.object();
+##         claims["sub"] = json.JsonValue.String("ada");
+##         claims["exp"] = json.JsonValue.Integer(4000000000);
+##         var token = jwt.sign(claims, key).value();
+##         var checked = jwt.verify<json.JsonValue>(token, key);
+##         print(checked.value()["sub"].as_string().value());   # ada
 ##         return 0;
 ##     }
 
-# This file only gathers the module's public API from its other files.
+import "key";
+import "token";
+import "validation";
 
-import "greet";
-
-export greet;
+export Key;
+export sign;
+export verify;
+export sign_jws;
+export verify_jws;
+export Validation;

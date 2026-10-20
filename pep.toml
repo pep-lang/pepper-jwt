@@ -1,6 +1,9 @@
 [package]
-name = "mypkg"
-version = "0.1.0"
-description = "One line saying what the package does"
+name = "jwt"
+version = "1.0.0"
+description = "JSON Web Tokens: sign and verify JWS compact tokens (HS256, EdDSA) and validate their claims"
 license = "Apache-2.0"
-repository = "https://github.com/OWNER/pepper-mypkg"
+repository = "https://github.com/pep-lang/pepper-jwt"
+
+[dependencies]
+crypto = { github = "pep-lang/pepper-crypto", version = "1.0.0" }
